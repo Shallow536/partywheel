@@ -27,13 +27,7 @@ jobs:
         pip install cython virtualenv
         pip install buildozer
 
-    - name: Install Android SDK build-tools
-      run: |
-        yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager \
-          "platform-tools" \
-          "platforms;android-31" \
-          "build-tools;33.0.2"
-
+    # 🔧 这一步会自动触发 Buildozer 下载 Android SDK 和构建工具
     - name: Build APK
       run: |
         buildozer android debug
