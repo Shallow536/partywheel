@@ -27,7 +27,9 @@ jobs:
           mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
           unzip -q cmdline-tools.zip -d $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
-          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk \
+          # 关键：将解压出来的 cmdline-tools 目录重命名为 latest
+          mv $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
         env:
           ANDROID_SDK_ROOT: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
