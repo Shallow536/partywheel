@@ -33,6 +33,11 @@ jobs:
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
         env:
           ANDROID_SDK_ROOT: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
+
+      - name: Symlink cmdline-tools to tools for sdkmanager compatibility
+        run: |
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
+          ln -sf $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
       
       - name: Set environment variables
         run: |
