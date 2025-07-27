@@ -23,14 +23,6 @@ jobs:
           pip install buildozer
       
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-17-jdk build-essential wget
-          pip install --upgrade pip
-          pip install cython virtualenv
-          pip install buildozer
-
       - name: Install Android SDK Build Tools
         run: |
           mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
