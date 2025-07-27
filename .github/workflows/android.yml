@@ -21,14 +21,7 @@ jobs:
           pip install --upgrade pip
           pip install cython virtualenv
           pip install buildozer
-
-      - name: 安装构建依赖
-        run: sudo apt-get update && sudo apt-get install -y autoconf automake libtool
       
-      # 若有权限可加
-      - name: 更新 Autoconf 宏
-        run: autoupdate
-        working-directory: <path-to-configure.ac>
 
       - name: Install dependencies
         run: |
