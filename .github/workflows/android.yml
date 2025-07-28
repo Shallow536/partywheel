@@ -1,34 +1,71 @@
-name: Build Android APK
+name: Android Build
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main  # 或你自己的分支名称
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
+    - name: Checkout source code
+      uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y zip unzip openjdk-17-jdk \
-            python3-pip build-essential git libtool \
-            autoconf automake m4 pkg-config
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-      - name: Install Python packages
-        run: |
-          pip install --upgrade pip
-          pip install cython virtualenv buildozer
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y unzip openjdk-17-jdk python3-pip python3-setuptools \
+                            python3-wheel libffi-dev libssl-dev git \
+                            libbz2-dev zlib1g-dev libncurses5-dev libsqlite3-dev
 
-      - name: Patch m4 macro (to avoid LT_SYS_SYMBOL_USCORE error)
-        run: echo 'm4_pattern_allow([LT_SYS_SYMBOL_USCORE])' >> dummy.ac
+    - name: Install Buildozer
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install --upgrade buildozer cython
 
-      - name: Build APK
-        run: |
-          buildozer android debug
+    - name: Download Android SDK commandline tools
+      run: |
+        mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
+        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+        unzip -q cmdline-tools.zip -d $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
+        mv $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+
+    - name: Install Android SDK Build Tools
+      run: |
+        mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
+        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+        unzip -q cmdline-tools.zip -d $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
+        mv $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+    
+        yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk \
+          "platform-tools" \
+          "platforms;android-33" \
+          "build-tools;33.0.0" \
+          "build-tools;34.0.0"
+      env:
+        ANDROID_SDK_ROOT: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
+
+    - name: Set environment variables
+      run: |
+        echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+        echo "$HOME/.buildozer/android/platform/android-sdk/platform-tools" >> $GITHUB_PATH
+        echo "$HOME/.buildozer/android/platform/android-sdk/build-tools/33.0.0" >> $GITHUB_PATH
+
+    - name: Build Android APK
+      run: |
+        buildozer android debug
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-kivy-app.apk
+        path: bin/*.apk
