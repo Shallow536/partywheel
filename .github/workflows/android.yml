@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Allow undefined macros (m4)
+        run: echo "m4_pattern_allow([LT_SYS_SYMBOL_USCORE])" >> configure.ac || true
+
       - name: Checkout code
         uses: actions/checkout@v3
 
