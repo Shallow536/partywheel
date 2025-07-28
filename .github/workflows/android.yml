@@ -11,32 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Allow undefined macros (m4)
-        run: echo "m4_pattern_allow([LT_SYS_SYMBOL_USCORE])" >> configure.ac || true
-
-      - name: Checkout code
+      - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y \
-            python3-pip zip unzip openjdk-17-jdk \
-            build-essential libtool automake autoconf pkg-config \
-            libncurses5 m4 git
+          sudo apt install -y zip unzip openjdk-17-jdk \
+            python3-pip build-essential git libtool \
+            autoconf automake m4 pkg-config
 
-      - name: Install Python dependencies
+      - name: Install Python packages
         run: |
           pip install --upgrade pip
-          pip install cython virtualenv
-          pip install buildozer
+          pip install cython virtualenv buildozer
 
-      - name: Set environment variables
-        run: |
-          echo "PATH=$HOME/.buildozer/android/platform/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
-          echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+      - name: Patch m4 macro (to avoid LT_SYS_SYMBOL_USCORE error)
+        run: echo 'm4_pattern_allow([LT_SYS_SYMBOL_USCORE])' >> dummy.ac
 
       - name: Build APK
         run: |
